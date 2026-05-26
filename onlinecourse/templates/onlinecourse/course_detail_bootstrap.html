@@ -50,7 +50,38 @@
                     </div>
                 {% endfor %}
             </div>
-            <!-- Course detail template changes go here -->
+            {% if user.is_authenticated %}
+<button class="btn btn-success mt-3" data-toggle="collapse" data-target="#exam">
+    Take Exam
+</button>
+
+<div id="exam" class="collapse mt-3">
+    <form method="POST">
+        {% csrf_token %}
+
+        {% for question in course.question_set.all %}
+        <div class="card mt-2">
+            <div class="card-header">
+                Question {{ question.id }}: {{ question.question_text }}
+            </div>
+
+            <div class="card-body">
+                {% for choice in question.choice_set.all %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="choices" value="{{ choice.id }}">
+                    <label class="form-check-label">
+                        {{ choice.choice_text }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <button class="btn btn-primary mt-3" type="submit">Submit</button>
+    </form>
+</div>
+{% endif %}
     </div>
 </body>
 </html>
