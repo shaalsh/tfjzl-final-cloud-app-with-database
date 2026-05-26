@@ -11,60 +11,48 @@
         <div class="navbar-header">
             <a class="navbar-brand" href="{% url 'onlinecourse:index' %}">Home</a>
         </div>
-        <ul class="nav navbar-nav navbar-right">
-            {% if user.is_authenticated %}
-            <li>
-                <a class="btn btn-link" href="#">{{ user.first_name }}({{ user.username }})</a>
-                <a class="btn btn-link" href="{% url 'onlinecourse:logout' %}">Logout</a>
-            </li>
-            {% endif %}
-        </ul>
     </div>
 </nav>
 
 <div class="container-fluid mt-4">
 
-    {% if grade > 80 %}
+    {% if grade >= 80 %}
     <div class="alert alert-success">
         <b>Congratulations, {{ user.first_name }}!</b>
         You have passed the exam and completed the course with score {{ grade }}/100
     </div>
     {% else %}
     <div class="alert alert-danger">
-        <b>Failed</b>
+        <b>Failed.</b>
         You have failed the exam with score {{ grade }}/100.
         <br>
-        <a class="btn btn-link text-danger" href="{% url 'onlinecourse:course_details' course.id %}">Re-test</a>
+        <a class="btn btn-danger mt-2" href="{% url 'onlinecourse:course_details' course.id %}">Re-test</a>
     </div>
     {% endif %}
 
-    <div class="card-columns-vertical mt-1">
-        <h5>Exam results</h5>
+    <h5>Exam results</h5>
 
-        {% for question in course.question_set.all %}
-        <div class="card mt-1">
-            <div class="card-header">
-                <h5>{{ question.question_text }}</h5>
-            </div>
-
-            <div class="form-group p-3">
-                {% for choice in question.choice_set.all %}
-                <div class="form-check">
-                    {% if choice.is_correct and choice in choices %}
-                    <div class="text-success">Correct answer: {{ choice.choice_text }}</div>
-                    {% else %}{% if choice.is_correct and not choice in choices %}
-                    <div class="text-warning">Not selected: {{ choice.choice_text }}</div>
-                    {% else %}{% if not choice.is_correct and choice in choices %}
-                    <div class="text-danger">Wrong answer: {{ choice.choice_text }}</div>
-                    {% else %}
-                    <div>{{ choice.choice_text }}</div>
-                    {% endif %}{% endif %}{% endif %}
-                </div>
-                {% endfor %}
-            </div>
+    {% for result in question_results %}
+    <div class="card mt-1">
+        <div class="card-header">
+            <h5>{{ result.question.question_text }}</h5>
         </div>
-        {% endfor %}
+        <div class="form-group p-3">
+            {% if result.is_correct %}
+            <div class="text-success">Correct answer selected.</div>
+            {% else %}
+            <div class="text-danger">Incorrect answer.</div>
+            {% endif %}
+
+            <p class="mt-2"><b>Your selected choices:</b></p>
+            {% for choice in result.selected_choices %}
+            <div>{{ choice.choice_text }}</div>
+            {% empty %}
+            <div>No choice selected</div>
+            {% endfor %}
+        </div>
     </div>
+    {% endfor %}
 
 </div>
 </body>
